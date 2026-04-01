@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "agent": {
+    "name": "linky",
+    "description": "test repo pre launch",
+    "vibe": "testy",
+    "emoji": "🤖"
+  },
+  "template": {
+    "slug": "linky",
+    "category": "linkchecking",
+    "partnerName": "Matt Ober",
+    "tags": ["test"]
+  },
+  "model": {
+    "primary": "anthropic/claude-sonnet-4-6"
+  },
+  "secrets": [
+    {
+      "name": "GHOST_KEY",
+      "description": "Read key for the Ghost Blog Service"
+    }
+  ],
+  "scripts": {
+    "build": "cd ./workspace/link-scanner && npm install --include=dev && npm run build",
+    "start": "cd ./workspace/link-scanner && ./node_modules/.bin/pm2 start ecosystem.config.js"
+  },
+  "tasks": [
+    {
+      "name": "link-scanner-watchdog",
+      "prompt": "Watchdog check: run `curl -sf http://localhost:3000/health` to test if the link-scanner API is up. If it fails or times out, run `cd /home/node/clawd/workspace/link-scanner && ./node_modules/.bin/pm2 resurrect || ./node_modules/.bin/pm2 start ecosystem.config.js` to bring it back, then verify with another curl. Reply with a single short status line: OK or RESTARTED or FAILED.",
+      "schedule": "600000ms"
+    },
+    {
+      "name": "link-scanner-full-scan",
+      "prompt": "Trigger a full link scan by running: `curl -sf -X POST http://localhost:3000/scan/trigger`. Report the scan_id from the response and confirm it started.",
+      "schedule": "86400000ms"
+    }
+  ],
+  "routes": [
+    {
+      "port": 3000,
+      "path": "/linkchecker",
+      "protected": false
+    }
+  ]
+}
